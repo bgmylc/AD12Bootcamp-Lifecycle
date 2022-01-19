@@ -9,8 +9,13 @@ import android.view.MenuItem
 import com.begumyolcu.sayacapp.databinding.ActivityMainBinding
 import timber.log.Timber
 
+const val KEY_SANIYE = "timer_saniye_key"
+const val KEY_SAYI = "sayi_key"
+
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var sayacTimer: SayacTimer
+    private var sayi = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,13 +23,22 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val varsayılanDeger = 0
+        sayacTimer = SayacTimer(this.lifecycle)
 
         binding.apply {
-            textViewSayac.text = varsayılanDeger.toString()
+            textViewSayac.text = sayi.toString()
+
+            if (savedInstanceState != null){
+                sayi = savedInstanceState.getInt(KEY_SAYI, 0)
+                Timber.i(sayi.toString())
+                textViewSayac.text = sayi.toString()
+                sayacTimer.sayilanSaniye = savedInstanceState.getInt(KEY_SANIYE, 0)
+            }
+
 
             buttonSayac.setOnClickListener {
                 val gelenDeger = textViewSayac.text.toString().toInt()
+                sayi = gelenDeger + 1
                 textViewSayac.text = (gelenDeger+1).toString()
             }
         }
@@ -32,6 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+
         Timber.i("onStart Çağrıldı")
     }
 
@@ -52,6 +67,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
+
         Timber.i("onStop Çağrıldı")
     }
 
@@ -81,5 +97,11 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_SANIYE, sayacTimer.sayilanSaniye)
+        outState.putInt(KEY_SAYI, sayi)
+        Timber.i("onSaveInstanceState çağrıldı")
+    }
 
 }
